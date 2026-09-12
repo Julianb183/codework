@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+all=0
+restart=0
+project="$PWD"
+while (($#)); do
+  case "$1" in
+    -a|--all) all=1; shift;;
+    -z|--restart) restart=1; shift;;
+    -h|--help)
+      echo 'Usage: codework [-a|--all] [-z|--restart] [project-directory]'; exit 0;;
+    --) shift; (($#)) && project="$1"; break;;
+    -*) echo "codework: unknown option: $1" >&2; exit 2;;
+    *) project="$1"; shift;;
+  esac
+done
+project="$(cd "$project" 2>/dev/null && pwd)" || { echo "codework: directory not found: $project" >&2; exit 1; }
+
+if ((restart)); then
+  case "$(uname -s)" in
+    Darwin) osascript -e 'tell application "Visual Studio Code" to quit' >/dev/null 2>&1 || true; osascript -e 'tell application "Terminal" to quit' >/dev/null 2>&1 || true; osascript -e 'tell application "Raycast" to quit' >/dev/null 2>&1 || true;;
+    Linux) command -v pkill >/dev/null && { pkill -f 'code' || true; pkill -f 'gnome-terminal|konsole|xfce4-terminal|kitty|alacritty' || true; };;
+  esac
+  sleep 1
+fi
+
+if command -v code >/dev/null 2>&1; then code "$project" >/dev/null 2>&1 &
+elif [[ "$(uname -s)" == Darwin ]]; then open -a 'Visual Studio Code' "$project"
+elif command -v xdg-open >/dev/null 2>&1; then xdg-open "$project" >/dev/null 2>&1 || true
+fi
+
+case "$(uname -s)" in
+  Darwin) open -a Terminal "$project";;
+  Linux)
+    if command -v gnome-terminal >/dev/null; then gnome-terminal --working-directory="$project" &
+    elif command -v konsole >/dev/null; then konsole --workdir "$project" &
+    elif command -v kitty >/dev/null; then kitty --directory "$project" &
+    elif command -v alacritty >/dev/null; then alacritty --working-directory "$project" &
+    elif command -v x-terminal-emulator >/dev/null; then (cd "$project" && x-terminal-emulator) &
+    else echo 'codework: no supported terminal found' >&2; fi;;
+esac
+
+if ((all || restart)); then
+  if [[ "$(uname -s)" == Darwin ]]; then open -a Raycast
+  elif [[ -n "${CODEWORK_AI_URL:-}" ]] && command -v xdg-open >/dev/null; then xdg-open "$CODEWORK_AI_URL" >/dev/null 2>&1 &
+  fi
+fi
+printf 'Coding workspace opened: %s\n' "$project"
