@@ -1,107 +1,67 @@
+CODEWORK AND REST
+=================
+
+This repository contains codework, a cross-platform coding workspace launcher,
+and rest, a cross-platform sleep command.
+
 CODEWORK
-========
-
-A cross-platform coding workspace launcher for macOS, Linux, and Windows.
-
-WHAT IT DOES
--------------
-Codework opens the tools needed for a coding session in one step:
-
-- Visual Studio Code with the selected project folder
-- A terminal already working in that project folder
-- An AI workspace when requested
-
-SUPPORTED PLATFORMS
--------------------
-macOS:
-  Opens VS Code, Terminal, and Raycast. Raycast AI Chat can then be opened
-  from Raycast.
-
-Linux:
-  Opens VS Code and the first supported terminal it finds: GNOME Terminal,
-  Konsole, Kitty, Alacritty, or x-terminal-emulator. If CODEWORK_AI_URL is
-  set, the AI page opens in the default browser.
-
-Windows:
-  Opens VS Code and Windows Terminal, or PowerShell if Windows Terminal is
-  unavailable. If CODEWORK_AI_URL is set, that AI page opens in the browser;
-  otherwise ChatGPT opens.
-
-COMMANDS
 --------
-macOS and Linux:
+Codework opens Visual Studio Code, a terminal in the selected project folder,
+and an optional AI workspace.
+
+macOS / Linux:
   codework [--all|-a] [--restart|-z] [project-directory]
 
 Windows PowerShell:
   .\codework.ps1 [-All] [-Restart] [-ProjectDirectory path]
 
-Examples:
-  codework -a ~/Projects/MyApp
-  codework -z ~/Projects/MyApp
-  .\codework.ps1 -All -ProjectDirectory C:\Projects\MyApp
+Use -a/--all to open the AI workspace. Use -z/--restart to restart workspace
+applications before opening them. If no project directory is supplied, the
+current directory is used.
 
-OPTIONS
--------
--a, --all
-  Open the AI workspace along with VS Code and the terminal.
+REST
+----
+Rest puts the computer to sleep. The macOS version uses the existing native
+rest-screen animation when that executable is installed, then uses pmset as a
+fallback. Linux uses systemctl suspend. Windows uses the PowerShell sleep
+API. Press Ctrl+C during the short cancellation window where supported.
 
--z, --restart
-  Close and reopen the workspace applications, then open the workspace.
+macOS / Linux:
+  rest
+  rest -a
 
-project-directory
-  The folder to open. If omitted, the current directory is used.
+Windows PowerShell:
+  powershell -ExecutionPolicy Bypass -File "$HOME\codework\rest.ps1"
 
-INSTALLATION AND AUTOMATIC PATH SETUP
--------------------------------------
-Each platform has an installer that copies the launcher and adds its install
-location to the current user's PATH. The PATH entry is added only once and
-administrator access is not required.
+The -a option is preserved on macOS for the existing rest-screen --all mode.
+On Linux and Windows it is accepted for command compatibility.
+
+INSTALLATION AND PATH
+---------------------
+Each installer adds its user-level install directory to PATH without requiring
+administrator access. PATH entries are not duplicated.
 
 macOS:
-  cd macos
-  ./install.sh
+  cd rest
+  ./install-macos.sh
 
 Linux:
-  cd linux
-  ./install.sh
+  cd rest
+  ./install-linux.sh
 
 Windows PowerShell:
   Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
-  .\windows\install.ps1
+  .\rest\install-windows.ps1
 
-Open a new terminal after installation so the updated PATH is loaded.
+Open a new terminal after installing so PATH changes are loaded.
 
-AI URL CONFIGURATION
---------------------
-On Linux or Windows, set CODEWORK_AI_URL to an AI service before using -a:
-
-  macOS/Linux:
-    export CODEWORK_AI_URL='https://chatgpt.com/'
-
-  Windows PowerShell:
-    $env:CODEWORK_AI_URL = 'https://chatgpt.com/'
-
-macOS opens Raycast for the AI workspace instead of using CODEWORK_AI_URL.
+AI CONFIGURATION
+----------------
+On Linux and Windows, set CODEWORK_AI_URL to an AI page before using codework
+-a. macOS opens Raycast for its AI workspace.
 
 ZIP PACKAGES
 ------------
-The dist directory contains separate packages:
-
-  codework-macos.zip
-  codework-linux.zip
-  codework-windows.zip
-
-Each package includes the launcher, documentation, and the installer for its
-platform.
-
-HOW IT WORKS
-------------
-1. The launcher parses the project path and options.
-2. It resolves the path to an absolute directory.
-3. With -z, it closes the supported workspace applications and waits briefly.
-4. It starts VS Code with the project directory.
-5. It starts a supported terminal in the same directory.
-6. With -a or -z, it opens the configured AI workspace.
-
-The launcher does not modify project files. Installers only copy codework and
-update the current user's PATH.
+The dist directory contains codework-macos.zip, codework-linux.zip, and
+codework-windows.zip. Each package contains the codework port, rest port,
+installer scripts, and this documentation.
