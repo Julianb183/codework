@@ -18,7 +18,9 @@ It opens a project in VS Code, starts a terminal in that directory, and optional
 .\windows\codework.ps1 [-All] [-Restart] [-ProjectDirectory path]
 ```
 
-`-a` / `--all` opens the AI workspace too. `-z` / `--restart` restarts the workspace applications first.
+`-a` / `--all` opens the AI workspace too. `-z` / `--restart` restarts VS Code and the terminal first; it does not open AI unless `-a` is also supplied.
+
+On Linux, restart mode closes only exact `code` and supported terminal processes, not the running `codework` command. On Windows, restart mode closes VS Code and Windows Terminal only.
 
 Set `CODEWORK_AI_URL` on Windows or Linux to open a browser AI workspace:
 

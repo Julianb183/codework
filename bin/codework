@@ -20,7 +20,14 @@ project="$(cd "$project" 2>/dev/null && pwd)" || { echo "codework: directory not
 if ((restart)); then
   case "$(uname -s)" in
     Darwin) osascript -e 'tell application "Visual Studio Code" to quit' >/dev/null 2>&1 || true; osascript -e 'tell application "Terminal" to quit' >/dev/null 2>&1 || true; osascript -e 'tell application "Raycast" to quit' >/dev/null 2>&1 || true;;
-    Linux) command -v pkill >/dev/null && { pkill -f 'code' || true; pkill -f 'gnome-terminal|konsole|xfce4-terminal|kitty|alacritty' || true; };;
+    Linux)
+      if command -v pkill >/dev/null 2>&1; then
+        pkill -x code 2>/dev/null || true
+        for terminal in gnome-terminal konsole xfce4-terminal kitty alacritty; do
+          pkill -x "$terminal" 2>/dev/null || true
+        done
+      fi
+      ;;
   esac
   sleep 1
 fi
@@ -41,7 +48,7 @@ case "$(uname -s)" in
     else echo 'codework: no supported terminal found' >&2; fi;;
 esac
 
-if ((all || restart)); then
+if ((all)); then
   if [[ "$(uname -s)" == Darwin ]]; then open -a Raycast
   elif [[ -n "${CODEWORK_AI_URL:-}" ]] && command -v xdg-open >/dev/null; then xdg-open "$CODEWORK_AI_URL" >/dev/null 2>&1 &
   fi
